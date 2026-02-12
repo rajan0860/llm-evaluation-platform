@@ -93,7 +93,7 @@ Database (Prompts, Responses, Scores)
 
 * **Backend:** Java 17 with Spring Boot 3.2.0
 * **Database:** MongoDB
-* **LLM Integration:** OpenAI API / Mock model interface
+* **LLM Integration:** Local LLM models (Ollama, LlamaCPP, or similar)
 * **Testing:** JUnit 5 with TestContainers
 * **Documentation:** OpenAPI/Swagger (Springdoc)
 * **Build Tool:** Maven
@@ -105,6 +105,7 @@ Database (Prompts, Responses, Scores)
 * Java 17 or higher
 * Maven 3.8+
 * MongoDB 5.0+ (local or containerized)
+* Local LLM setup (Ollama, LlamaCPP, or similar)
 * IDE: IntelliJ IDEA, Eclipse, or VS Code
 
 ---
@@ -132,7 +133,18 @@ brew services start mongodb-community
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
-### 3. Configure Application Properties
+### 3. Set Up Local LLM
+
+**Using Ollama (recommended):**
+```bash
+# Install Ollama from https://ollama.ai
+# Pull a model
+ollama pull mistral  # or llama2, neural-chat, etc.
+# Start Ollama server (usually runs on http://localhost:11434)
+ollama serve
+```
+
+### 4. Configure Application Properties
 
 Create or edit `src/main/resources/application.yml`:
 
@@ -144,9 +156,6 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/llm_eval_db
   
-  jpa:
-    show-sql: false
-  
 logging:
   level:
     root: INFO
@@ -156,15 +165,21 @@ server:
   port: 8080
   servlet:
     context-path: /api
+
+llm:
+  provider: ollama  # or llamacpp
+  base-url: http://localhost:11434
+  model-name: mistral  # Configure based on your local model
+  timeout-seconds: 60
 ```
 
-### 4. Build the Project
+### 5. Build the Project
 
 ```bash
 mvn clean install
 ```
 
-### 5. Run the Application
+### 6. Run the Application
 
 ```bash
 mvn spring-boot:run
@@ -172,7 +187,7 @@ mvn spring-boot:run
 
 The application will start on `http://localhost:8080`
 
-### 6. Access API Documentation
+### 7. Access API Documentation
 
 Open Swagger UI in your browser:
 ```
@@ -409,7 +424,7 @@ The API returns standardized error responses:
 * Multi-evaluator consensus scoring with inter-rater agreement metrics
 * Prompt versioning and A/B testing framework
 * Role-based access control (annotator, reviewer, admin)
-* Integration with open-source LLMs (Llama, Mistral, etc.)
+* Support for additional local LLM providers (GPT4All, LM Studio, etc.)
 * Real-time evaluation dashboard
 * Advanced filtering and search capabilities
 * Batch evaluation workflows
@@ -457,4 +472,4 @@ See [LICENSE](LICENSE) file for details.
 
 ---
 
-**Last Updated:** February 8, 2026
+**Last Updated:** February 9, 2026
